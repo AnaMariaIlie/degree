@@ -11,6 +11,7 @@ import ShowIngredient from './components/ShowIngredient';
 import EditIngredient from './components/EditIngredient';
 import ShowInteraction from './components/ShowInteraction';
 import EditInteraction from './components/EditInteraction';
+import ShowListIngredients from './components/ShowListIngredients';
 
 ReactDOM.render(
     <Router>
@@ -23,6 +24,7 @@ ReactDOM.render(
             <Route path='/editIngredient/:id' component={EditIngredient} />
             <Route path='/showInteraction/:id' component={ShowInteraction} />
             <Route path='/editInteraction/:id' component={EditInteraction} />
+            <Route path='/showListIngredients' component={ShowListIngredients} />
             
         </div>
     </Router>,

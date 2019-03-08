@@ -43,7 +43,7 @@ class ShowIngredient extends Component {
                     </div>
                     &emsp;
                     <div class="panel-body">
-                        <h4><Link to="/"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>Drugs List</Link></h4>
+                        <h4><Link to={`/showListIngredients`}><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>Ingredients List</Link></h4>
                         <dl>
                             <dt>Name:</dt>
                             <dd>{this.state.ingredient.name}</dd>
