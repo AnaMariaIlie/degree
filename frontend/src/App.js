@@ -1,22 +1,31 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { global_url } from './env.js'
+import { global_url } from './env.js';
+import Pagination from "./components/Pagination";
 
 class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            drugs: []
+            drugs: [],
+            displayedItems:[],
+            pageOfItems: [],
         };
+
+        this.handlePageChange = this.handlePageChange.bind(this);
+    }
+
+    handlePageChange(pageOfItems) {
+        this.setState({ pageOfItems: pageOfItems });
     }
 
     componentDidMount() {
         axios.get(global_url + '/drugs')
             .then(res => {
                 this.setState({ drugs: res.data });
-                console.log(this.state.drugs);
+                this.setState({ displayedItems: res.data });
             });
     }
 
@@ -32,7 +41,7 @@ class App extends Component {
                     &emsp;
                     <div class="panel-body">
                         <h4><Link to="/create"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Drug</Link></h4>
-                        <table class="table table-stripe">
+{/*                        <table class="table table-stripe">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -47,7 +56,19 @@ class App extends Component {
                                 </tr>
                             )}
                             </tbody>
-                        </table>
+                        </table>*/}
+{/*                        <ul>
+                            <th>Name</th>
+                            <th>Ingredients</th>
+                        </ul>*/}
+                        {this.state.pageOfItems.map(c =>
+                            <div className="bordered">
+                                <div className="floating"><Link to={`/show/${c.id}`}><b>{c.name}</b></Link></div>
+                                <div className="floating-margin">{c.ingredients.map(i => <small><Link to={`/showIngredient/${i.id}`}>{i.name + ".  "}</Link></small>)}</div>
+                            </div>
+                        )}
+                        &emsp;
+                        <Pagination items={this.state.drugs} onChangePage={this.handlePageChange} />
                     </div>
                 </div>
             </div>

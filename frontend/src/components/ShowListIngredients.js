@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { global_url } from '../env.js';
+import Pagination from "./Pagination";
+import Autosuggest from 'react-autosuggest';
 
 class App extends Component {
 
@@ -9,27 +11,110 @@ class App extends Component {
         super(props);
         this.state = {
             ingredients: [],
-            activePage: 1
+            displayedItems:[],
+            pageOfItems: [],
+            value: '',
+            suggestions: []
         };
 
         this.handlePageChange = this.handlePageChange.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.getSuggestionValue = this.getSuggestionValue.bind(this);
+        this.renderSuggestion = this.renderSuggestion.bind(this);
+        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
+        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
+        this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+        this.escapeRegexCharacters = this.escapeRegexCharacters.bind(this);
+        this.getSuggestions = this.getSuggestions.bind(this);
 
     }
 
-    handlePageChange(pageNumber) {
-        console.log(`active page is ${pageNumber}`);
-        this.setState({activePage: pageNumber});
+     escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+     getSuggestions = value => {
+        const escapedValue = this.escapeRegexCharacters(value.trim());
+
+        if (escapedValue === '') {
+            return [];
+        }
+
+        const regex = new RegExp('^' + escapedValue, 'i');
+        const suggestions = this.state.ingredients.filter(i => regex.test(i.name));
+
+        if (suggestions.length === 0) {
+            return [
+                { isAddNew: true }
+            ];
+        }
+
+        return suggestions;
+    }
+
+
+    handlePageChange(pageOfItems) {
+        this.setState({ pageOfItems: pageOfItems });
     }
 
     componentDidMount() {
         axios.get(global_url + '/ingredients')
             .then(res => {
                 this.setState({ ingredients: res.data });
+                this.setState({ displayedItems: res.data });
             });
     }
 
-    render() {
+    onChange = (event, { newValue, method }) => {
+        this.setState({
+            value: newValue
+        });
+    };
 
+    getSuggestionValue = suggestion => {
+        if (suggestion.isAddNew) {
+            return this.state.value;
+        }
+
+        return suggestion.name;
+    };
+
+    renderSuggestion = suggestion => {
+        if (suggestion.isAddNew) {
+            return (
+                <span>
+          [+] Add new: <strong>{this.state.value}</strong>
+        </span>
+            );
+        }
+
+        return suggestion.name;
+    };
+
+    onSuggestionsFetchRequested = ({ value }) => {
+        this.setState({
+            suggestions: this.getSuggestions(value)
+        });
+    };
+
+    onSuggestionsClearRequested = () => {
+        this.setState({
+            suggestions: []
+        });
+    };
+
+    onSuggestionSelected = (event, { suggestion }) => {
+        if (suggestion.isAddNew) {
+            console.log('Add new:', this.state.value);
+        }
+    };
+
+    render() {
+        const value = this.state.value;
+        const suggestions = this.state.suggestions;
+        const inputProps = {
+            placeholder: "Type 'c'",
+            value,
+            onChange: this.onChange
+        };
         return (
             <div class="container">
                 <div class="panel panel-default">
@@ -40,24 +125,22 @@ class App extends Component {
                     </div>
                     &emsp;
                     <div class="panel-body">
+                        <Autosuggest
+                            suggestions={suggestions}
+                            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                            getSuggestionValue={this.getSuggestionValue}
+                            renderSuggestion={this.renderSuggestion}
+                            onSuggestionSelected={this.onSuggestionSelected}
+                            inputProps={inputProps}
+                        />
                         <h4><Link to="/create"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Ingredient</Link></h4>
 
-                      <table class="table table-stripe">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            {this.state.ingredients.map(c =>
-                                <tr>
-                                    <td><Link to={`/showIngredient/${c.id}`}><b>{c.name}</b></Link></td>
-                                </tr>
-                            )}
-                            </tbody>
-
-                        </table>
+                        {this.state.pageOfItems.map(item =>
+                            <div key={item.id}><Link to={`/showIngredient/${item.id}`}>{item.name}</Link></div>
+                        )}
+                        &emsp;
+                        <Pagination items={this.state.ingredients} onChangePage={this.handlePageChange} />
 
 
                     </div>

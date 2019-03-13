@@ -32,7 +32,7 @@ public class DrugController {
     @RequestMapping(method=RequestMethod.POST, value="/drug")
     public Drug save(@RequestBody Drug drug) {
 
-        drug.getIngredients().stream().filter(Objects::nonNull).forEach(this::saveIngredient);
+        //drug.getIngredients().stream().filter(Objects::nonNull).forEach(this::saveIngredient);
 
         if (!drugRepository.existsByName(drug.getName()))
             drugRepository.save(drug);

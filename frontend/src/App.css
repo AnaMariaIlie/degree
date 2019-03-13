@@ -26,6 +26,19 @@
   color: #007bff;
 }
 
+.bordered{
+  border: 1px ridge;
+  position: relative;
+  overflow: hidden;
+}
+
+.floating {
+  float:left;
+}
+.floating-margin {
+  float:left;
+  margin-left: 15px;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
