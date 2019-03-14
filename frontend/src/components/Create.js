@@ -11,20 +11,110 @@ class Create extends Component {
         super();
         this.state = {
             name: '',
-            ingredients: []
+            stringIngredients: [],
+            allIngredients: [],
+            ingredients: [],
+            value: '',
+            suggestions: []
         };
+
+        this.onChangeIngredientsList = this.onChangeIngredientsList.bind(this);
+        this.getSuggestionValue = this.getSuggestionValue.bind(this);
+        this.renderSuggestion = this.renderSuggestion.bind(this);
+        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
+        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
+        this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+        this.escapeRegexCharacters = this.escapeRegexCharacters.bind(this);
+        this.getSuggestions = this.getSuggestions.bind(this);
     }
+
+    escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    getSuggestions = value => {
+        const escapedValue = this.escapeRegexCharacters(value.trim());
+
+        if (escapedValue === '') {
+            return [];
+        }
+
+        const regex = new RegExp('^' + escapedValue, 'i');
+        const suggestions = this.state.allIngredients.filter(i => regex.test(i.name));
+
+        if (suggestions.length === 0) {
+            return [
+                { isAddNew: true }
+            ];
+        }
+
+        return suggestions;
+    }
+
     onChange = (e) => {
         const state = this.state
         state[e.target.name] = e.target.value;
         this.setState(state);
     }
 
+
+    componentDidMount() {
+        axios.get(global_url + '/ingredients')
+            .then(res => {
+                this.setState({ allIngredients: res.data });
+            });
+    }
+
+    onChangeIngredientsList = (event, { newValue, method }) => {
+        this.setState({
+            value: newValue
+        });
+    };
+
+
+    getSuggestionValue = suggestion => {
+        if (suggestion.isAddNew) {
+            return this.state.value;
+        }
+
+        return suggestion.name;
+    };
+
+    renderSuggestion = suggestion => {
+        if (suggestion.isAddNew) {
+            return (
+                <span>
+          [+] Add new: <strong>{this.state.value}</strong>
+        </span>
+            );
+        }
+
+        return suggestion.name;
+    };
+
+    onSuggestionsFetchRequested = ({ value }) => {
+        this.setState({
+            suggestions: this.getSuggestions(value)
+        });
+    };
+
+    onSuggestionsClearRequested = () => {
+        this.setState({
+            suggestions: []
+        });
+    };
+
+    onSuggestionSelected = (event, { suggestion }) => {
+        if (suggestion.isAddNew) {
+            console.log('Add new:', this.state.value);
+        }
+    };
+
+
     onSubmit = (e) => {
         e.preventDefault();
 
         const { name, ingredients} = this.state;
 
+        console.log(ingredients);
         axios.post(global_url + '/drug', { name, ingredients});
             //.then((result) => {
                // this.props.history.push("/")
@@ -33,12 +123,17 @@ class Create extends Component {
 
     addIngredient(ingredient) {
 
-        this.state.ingredients.push(ingredient);
+        const result = this.state.allIngredients.find(e => e.name === ingredient);
+
+        this.state.stringIngredients.push(ingredient);
+        this.state.ingredients.push(result);
+        console.log(result);
         this.setState({ ingredients : this.state.ingredients });
     }
 
     render() {
-        const { name, ingredients } = this.state;
+        const { name } = this.state;
+
         return (
             <div class="container">
                 <div class="panel panel-default">
@@ -56,10 +151,18 @@ class Create extends Component {
                             </div>
                             <div class="form-group">
                                 <label for="publisher">Ingredients:</label>
-                                <ItemsList ingredients={this.state.ingredients} />
-                                <AddItemForm addIngredient={this.addIngredient.bind(this)} />
+                                <ItemsList ingredients={this.state.stringIngredients} />
+                                <AddItemForm addIngredient={this.addIngredient.bind(this)}
+                                             state={this.state}
+                                             onChangeIngredientsList={this.onChangeIngredientsList.bind(this)}
+                                             renderSuggestion ={this.renderSuggestion.bind(this)}
+                                             onSuggestionsFetchRequested = {this.onSuggestionsFetchRequested.bind(this)}
+                                             onSuggestionsClearRequested = {this.onSuggestionsClearRequested.bind(this)}
+                                             getSuggestionValue={this.getSuggestionValue.bind(this)}
+                                             onSuggestionSelected={this.onSuggestionSelected.bind(this)}
+                                />
                             </div>
-                            <button type="submit" class="btn btn-default"  onClick={this.onSubmit.bind(this)}>Submit</button>
+                            <button type="submit" class="btn btn-primary"  onClick={this.onSubmit.bind(this)}>Submit</button>
                         </form>
                     </div>
                 </div>

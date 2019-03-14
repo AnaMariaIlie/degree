@@ -25,11 +25,15 @@
 .h-color{
   color: #007bff;
 }
-
 .bordered{
   border: 1px ridge;
   position: relative;
   overflow: hidden;
+}
+.container {
+  height: 100vh;
+  min-height : 100vh;
+  background: url(http://www.webdesigndev.com/wp-content/themes/webdesigndevdwa/css/../images/bdy-bg.jpg);
 }
 
 .floating {
