@@ -34,6 +34,7 @@ class AddItemForm extends Component {
                 <div className="form-group">
                     <label for="ingredientItem">
                         Ingredient Name
+                        &emsp;
                         <Autosuggest type="text" id="ingredientItem" ref={this.ingredientName}
                             suggestions={suggestions}
                             onSuggestionsFetchRequested={this.props.onSuggestionsFetchRequested}

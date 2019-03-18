@@ -134,7 +134,7 @@ class App extends Component {
                             onSuggestionSelected={this.onSuggestionSelected}
                             inputProps={inputProps}
                         />
-                        <h4><Link to="/create"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Ingredient</Link></h4>
+                        <h4><Link to="/createIngredient"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Ingredient</Link></h4>
 
                         {this.state.pageOfItems.map(item =>
                             <div key={item.id}><Link to={`/showIngredient/${item.id}`}>{item.name}</Link></div>

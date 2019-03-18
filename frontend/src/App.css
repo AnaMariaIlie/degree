@@ -31,9 +31,9 @@
   overflow: hidden;
 }
 .container {
-  height: 100vh;
-  min-height : 100vh;
-  background: url(http://www.webdesigndev.com/wp-content/themes/webdesigndevdwa/css/../images/bdy-bg.jpg);
+  /*height: 100vh;
+  min-height : 100vh;*/
+  background: #f2f2f2;
 }
 
 .floating {

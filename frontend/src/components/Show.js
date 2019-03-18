@@ -47,7 +47,7 @@ class Show extends Component {
                             <dt>Name:</dt>
                             <dd>{this.state.drug.name}</dd>
                             <dt>Ingredients:</dt>
-                            <dd>{this.state.drug.ingredients.map(i=> <div>{i.name}</div>)}</dd>
+                            <dd>{this.state.drug.ingredients.map(i=> <small><Link to={`/showIngredient/${i.id}`}>{i.name + ". "}</Link></small>)}</dd>
                         </dl>
                         <Link to={`/edit/${this.state.drug.id}`} class="btn btn-success">Edit</Link>&nbsp;
                         <button onClick={this.delete.bind(this, this.state.drug.id)} class="btn btn-danger">Delete</button>

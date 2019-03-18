@@ -41,26 +41,7 @@ class App extends Component {
                     &emsp;
                     <div class="panel-body">
                         <h4><Link to="/create"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Drug</Link></h4>
-{/*                        <table class="table table-stripe">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Ingredients</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {this.state.drugs.map(c =>
-                                <tr>
-                                    <td><Link to={`/show/${c.id}`}><b>{c.name}</b></Link></td>
-                                    <td>{c.ingredients.map(i => <small><Link to={`/showIngredient/${i.id}`}>{i.name + ".  "}</Link></small>)}</td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>*/}
-{/*                        <ul>
-                            <th>Name</th>
-                            <th>Ingredients</th>
-                        </ul>*/}
+
                         {this.state.pageOfItems.map(c =>
                             <div className="bordered">
                                 <div className="floating"><Link to={`/show/${c.id}`}><b>{c.name}</b></Link></div>
