@@ -26,12 +26,13 @@ public class IngredientController {
 
     @RequestMapping(method=RequestMethod.POST, value="/ingredient")
     public Ingredient save(@RequestBody Ingredient ingredient) {
-        ingredientRepository.save(ingredient);
+
 
         for (Interaction i : ingredient.getInteractions()) {
             if (i != null)
                 interactionRepository.save(i);
         }
+        ingredientRepository.save(ingredient);
         return ingredient;
     }
 
@@ -66,7 +67,11 @@ public class IngredientController {
         if (!ingredientOptional.isPresent())
             return;
 
+
         Ingredient ingredient = ingredientOptional.get();
+        for (Interaction interaction: ingredient.getInteractions()) {
+            interactionRepository.delete(interaction);
+        }
         ingredientRepository.delete(ingredient);
 
     }

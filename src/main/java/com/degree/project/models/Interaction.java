@@ -66,4 +66,15 @@ public class Interaction {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "Interaction{" +
+                "id='" + id + '\'' +
+                ", firstIngredientName='" + firstIngredientName + '\'' +
+                ", secondIngredientName='" + secondIngredientName + '\'' +
+                ", toxicityLevel='" + toxicityLevel + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

@@ -1,16 +1,17 @@
 package com.degree.project.controllers;
 
-import com.degree.project.models.Drug;
-import com.degree.project.models.Ingredient;
-import com.degree.project.models.Interaction;
+import com.degree.project.models.*;
 import com.degree.project.repositories.DrugRepository;
 import com.degree.project.repositories.IngredientRepository;
 import com.degree.project.repositories.InteractionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.ExecutorBeanDefinitionParser;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RestController
 public class DrugController {
@@ -95,4 +96,112 @@ public class DrugController {
         drugRepository.delete(drug);
 
     }
+
+    @RequestMapping(value="/drugsIds", method = RequestMethod.POST)
+    public Iterable<String> getdrugs(@RequestParam("id1") String first, @RequestParam("id2") String second, @RequestParam("id3") String third){
+
+        List<String> foundDrugs = new ArrayList<>();
+        Optional<Drug> firstDrug = drugRepository.findById(first);
+        Optional<Drug> secondDrug = drugRepository.findById(second);
+        Optional<Drug> thirdDrug = drugRepository.findById(third);
+
+        firstDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
+        secondDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
+        thirdDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
+
+        return foundDrugs;
+    }
+
+
+
+    @RequestMapping(value="/interactionList", method = RequestMethod.POST)
+    public Map< String, Interaction> getitem(@RequestParam("first") String first, @RequestParam("second") String second, @RequestParam("third") String third){
+
+
+        Map< String, Interaction> foundInteractions = new LinkedHashMap<>();
+        Optional<Drug> firstDrug = drugRepository.findById(first);
+        Optional<Drug> secondDrug = drugRepository.findById(second);
+        Optional<Drug> thirdDrug = drugRepository.findById(third);
+
+        //pentru cazul in care sunt prezente toate
+        /*storeAndCompare(foundInteractions, firstDrug, secondDrug);
+        storeAndCompare(foundInteractions, firstDrug, thirdDrug);
+        storeAndCompare(foundInteractions, secondDrug, thirdDrug);*/
+
+        /*if (firstDrug.isPresent() && thirdDrug.isPresent()) {
+            for (Ingredient ingredient : firstDrug.get().getIngredients()) {
+                for (Interaction interaction : ingredient.getInteractions()) {
+                    if (compare(interaction.getSecondIngredientName(), thirdDrug.get().getIngredients())) {
+                        foundInteractions.add(interaction);
+                    }
+                }
+
+            }
+
+        }
+
+        if (secondDrug.isPresent() && thirdDrug.isPresent()) {
+            for (Ingredient ingredient : secondDrug.get().getIngredients()) {
+                for (Interaction interaction : ingredient.getInteractions()) {
+                    if (compare(interaction.getSecondIngredientName(), thirdDrug.get().getIngredients())) {
+                        foundInteractions.add(interaction);
+                    }
+                }
+
+            }
+
+        }*/
+      Interaction i1 = new Interaction();
+       i1.setFirstIngredientName("Fluoxetine");
+       i1.setSecondIngredientName("Phenelzine");
+       i1.setDescription("The interaction can result in a central serotonin syndrome. This condition is characterized by mental status changes, agitation, diaphoresis, tachycardia, and death");
+       i1.setToxicityLevel("high");
+       i1.setId("123");
+       Interaction i2 = new Interaction();
+       i2.setFirstIngredientName("Digoxin");
+       i2.setSecondIngredientName("Quinidine");
+       i2.setDescription("The interaction can lead to a marked increase in plasma concentration levels of digoxin in more than 90% of patients.Significant changes in serum digoxin are noticed within 24 hours.");
+       i2.setToxicityLevel("medium");
+       i2.setId("12d3");
+        firstDrug.ifPresent(drug -> foundInteractions.put(firstDrug.get().getName() + "###" + secondDrug.get().getName(), i1));
+        foundInteractions.put("NN"  + "###" + "DJJDJD" , i2);
+        Interaction i3 = new Interaction();
+        i3.setFirstIngredientName("Clonidine");
+        i3.setSecondIngredientName("Propranolol");
+        i3.setDescription("The combination may produce a mysterious hypertension that is unrelated to the pharmacology of either agent when administered independently.");
+        i3.setToxicityLevel("low");
+        i3.setId("12xd3");
+        foundInteractions.put("NccN"  + "###" + "DccJJDJD", i3);
+
+        /*Interaction i4 = new Interaction();
+        i4.setFirstIngredientName("vgxxv");
+        i4.setSecondIngredientName("algxxovgvcalmin");
+        i4.setDescription("medcdddddddxddddddium");
+        i4.setToxicityLevel("low");
+        i4.setId("12xxd3");
+        foundInteractions.put("c", i4);*/
+
+
+        return foundInteractions;
+    }
+
+    private void storeAndCompare(Map<String, Interaction> foundInteractions, Optional<Drug> firstDrug, Optional<Drug> secondDrug) {
+        if (firstDrug.isPresent() && secondDrug.isPresent()) {
+             for (Ingredient ingredient : firstDrug.get().getIngredients()) {
+                 for (Interaction interaction : ingredient.getInteractions()) {
+                     if (compare(interaction.getSecondIngredientName(), secondDrug.get().getIngredients())) {
+                         foundInteractions.put(firstDrug.get().getName() + "###" + secondDrug.get().getName(), interaction);
+                     }
+                 }
+
+             }
+
+         }
+    }
+
+
+    public boolean compare(String secondName, List<Ingredient> ingredients) {
+        return ingredients.stream().anyMatch(o -> o.getName().equals(secondName));
+    }
+
 }

@@ -12,6 +12,7 @@ class EditIngredient extends Component {
         };
     }
 
+
     componentDidMount() {
 
         axios.get(global_url + '/ingredient/'+this.props.match.params.id)
@@ -56,9 +57,8 @@ class EditIngredient extends Component {
                             </div>
                             <div class="form-group">
                                 <label for="title">Interactions:</label>
-                                <input type="text" class="form-control" name="interactions" value={this.state.ingredient.interactions} onChange={this.onChange} placeholder="Interactions" />
-                            </div>
-                            <button type="submit" class="btn btn-default">Update</button>
+                                <dd>{this.state.ingredient.interactions.map(i => <small><Link to={`/showInteraction/${i.id}`}>{i.secondIngredientName + ". "}</Link></small>)}</dd>                            </div>
+                            <button type="submit">Update</button>
                         </form>
                     </div>
                 </div>

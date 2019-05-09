@@ -107,6 +107,12 @@ class App extends Component {
         }
     };
 
+    search = () => {
+        const val_ing  = this.state.ingredients.filter(i => i.name === this.state.value);
+        console.log(val_ing);
+        this.props.history.push("/showIngredient/" + val_ing[0].id);
+    }
+
     render() {
         const value = this.state.value;
         const suggestions = this.state.suggestions;
@@ -134,6 +140,7 @@ class App extends Component {
                             onSuggestionSelected={this.onSuggestionSelected}
                             inputProps={inputProps}
                         />
+                        <button onClick={this.search.bind(this)}>Search</button>
                         <h4><Link to="/createIngredient"  className="h-color" ><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>Add Ingredient</Link></h4>
 
                         {this.state.pageOfItems.map(item =>
