@@ -4,10 +4,12 @@ import com.degree.project.models.*;
 import com.degree.project.repositories.DrugRepository;
 import com.degree.project.repositories.IngredientRepository;
 import com.degree.project.repositories.InteractionRepository;
+import com.degree.project.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.ExecutorBeanDefinitionParser;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +26,9 @@ public class DrugController {
 
     @Autowired
     InteractionRepository interactionRepository;
+
+    @Autowired
+    UserRepository userRepository;
     
     @RequestMapping(method=RequestMethod.GET, value="/drugs")
     public Iterable<Drug> drugs() {
@@ -105,6 +110,7 @@ public class DrugController {
         Optional<Drug> secondDrug = drugRepository.findById(second);
         Optional<Drug> thirdDrug = drugRepository.findById(third);
 
+
         firstDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
         secondDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
         thirdDrug.ifPresent(drug -> foundDrugs.add(drug.getName()));
@@ -112,10 +118,16 @@ public class DrugController {
         return foundDrugs;
     }
 
+    private void addInEntry(String string, List<String> entry) {
+        if (!"".equals(string)) {
+            entry.add(string);
+        }
+    }
+
 
 
     @RequestMapping(value="/interactionList", method = RequestMethod.POST)
-    public Map< String, Interaction> getitem(@RequestParam("first") String first, @RequestParam("second") String second, @RequestParam("third") String third){
+    public Map< String, Interaction> getitem(@RequestParam("userId") String userId, @RequestParam("first") String first, @RequestParam("second") String second, @RequestParam("third") String third){
 
 
         Map< String, Interaction> foundInteractions = new LinkedHashMap<>();
@@ -124,9 +136,25 @@ public class DrugController {
         Optional<Drug> thirdDrug = drugRepository.findById(third);
 
         //pentru cazul in care sunt prezente toate
-        /*storeAndCompare(foundInteractions, firstDrug, secondDrug);
+        storeAndCompare(foundInteractions, firstDrug, secondDrug);
         storeAndCompare(foundInteractions, firstDrug, thirdDrug);
-        storeAndCompare(foundInteractions, secondDrug, thirdDrug);*/
+        storeAndCompare(foundInteractions, secondDrug, thirdDrug);
+
+
+        List<String> entry = new ArrayList<>();
+        Optional<User> optUser = userRepository.findById(userId);
+
+        addInEntry(first, entry);
+        addInEntry(second, entry);
+        addInEntry(third, entry);
+
+        entry.add(LocalDateTime.now().toString());
+
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+            user.getHistory().add(entry);
+            userRepository.save(user);
+        }
 
         /*if (firstDrug.isPresent() && thirdDrug.isPresent()) {
             for (Ingredient ingredient : firstDrug.get().getIngredients()) {
@@ -150,7 +178,7 @@ public class DrugController {
 
             }
 
-        }*/
+        }
       Interaction i1 = new Interaction();
        i1.setFirstIngredientName("Fluoxetine");
        i1.setSecondIngredientName("Phenelzine");
@@ -171,15 +199,7 @@ public class DrugController {
         i3.setDescription("The combination may produce a mysterious hypertension that is unrelated to the pharmacology of either agent when administered independently.");
         i3.setToxicityLevel("low");
         i3.setId("12xd3");
-        foundInteractions.put("NccN"  + "###" + "DccJJDJD", i3);
-
-        /*Interaction i4 = new Interaction();
-        i4.setFirstIngredientName("vgxxv");
-        i4.setSecondIngredientName("algxxovgvcalmin");
-        i4.setDescription("medcdddddddxddddddium");
-        i4.setToxicityLevel("low");
-        i4.setId("12xxd3");
-        foundInteractions.put("c", i4);*/
+        foundInteractions.put("NccN"  + "###" + "DccJJDJD", i3);*/
 
 
         return foundInteractions;
