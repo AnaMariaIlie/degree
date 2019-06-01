@@ -23,6 +23,28 @@ public class UserController {
         return userRepository.findById(id);
     }
 
+
+    @RequestMapping(method=RequestMethod.DELETE, value="/user/history/{id}")
+    public void deleteHistory(@PathVariable String id) {
+
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.getHistory().clear();
+            userRepository.save(user);
+        }
+    }
+
+    @RequestMapping(method=RequestMethod.GET, value="/user/history/{id}")
+    public List<List<String>> showHistory(@PathVariable String id) {
+
+        Optional<User> optUser = userRepository.findById(id);
+        return optUser.map(User::getHistory).orElse(null);
+
+    }
+
+
     @RequestMapping(method=RequestMethod.POST, value="/user/{id}")
     public User save(@PathVariable String id) {
 

@@ -136,25 +136,10 @@ public class DrugController {
         Optional<Drug> thirdDrug = drugRepository.findById(third);
 
         //pentru cazul in care sunt prezente toate
-        storeAndCompare(foundInteractions, firstDrug, secondDrug);
-        storeAndCompare(foundInteractions, firstDrug, thirdDrug);
-        storeAndCompare(foundInteractions, secondDrug, thirdDrug);
+        storeAndCompare(userId, foundInteractions, firstDrug, secondDrug);
+        storeAndCompare(userId, foundInteractions, firstDrug, thirdDrug);
+        storeAndCompare(userId, foundInteractions, secondDrug, thirdDrug);
 
-
-        List<String> entry = new ArrayList<>();
-        Optional<User> optUser = userRepository.findById(userId);
-
-        addInEntry(first, entry);
-        addInEntry(second, entry);
-        addInEntry(third, entry);
-
-        entry.add(LocalDateTime.now().toString());
-
-        if (optUser.isPresent()) {
-            User user = optUser.get();
-            user.getHistory().add(entry);
-            userRepository.save(user);
-        }
 
         /*if (firstDrug.isPresent() && thirdDrug.isPresent()) {
             for (Ingredient ingredient : firstDrug.get().getIngredients()) {
@@ -205,18 +190,37 @@ public class DrugController {
         return foundInteractions;
     }
 
-    private void storeAndCompare(Map<String, Interaction> foundInteractions, Optional<Drug> firstDrug, Optional<Drug> secondDrug) {
+    private void storeAndCompare(String userId, Map<String, Interaction> foundInteractions, Optional<Drug> firstDrug, Optional<Drug> secondDrug) {
         if (firstDrug.isPresent() && secondDrug.isPresent()) {
              for (Ingredient ingredient : firstDrug.get().getIngredients()) {
                  for (Interaction interaction : ingredient.getInteractions()) {
                      if (compare(interaction.getSecondIngredientName(), secondDrug.get().getIngredients())) {
                          foundInteractions.put(firstDrug.get().getName() + "###" + secondDrug.get().getName(), interaction);
+
+                         List<String> entry = createHistory(interaction);
+                         Optional<User> optUser = userRepository.findById(userId);
+
+                         if (optUser.isPresent()) {
+                             User user = optUser.get();
+                             user.getHistory().add(entry);
+                             userRepository.save(user);
+                         }
                      }
                  }
 
              }
 
          }
+    }
+
+    private List<String> createHistory(Interaction interaction) {
+        List<String> entry = new ArrayList<>();
+        entry.add(interaction.getFirstIngredientName());
+        entry.add(interaction.getSecondIngredientName());
+        entry.add(interaction.getDescription());
+        entry.add(interaction.getToxicityLevel());
+        entry.add(LocalDateTime.now().toString());
+        return entry;
     }
 
 
